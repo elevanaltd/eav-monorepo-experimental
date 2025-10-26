@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/shared-lib" },
+    { "path": "./packages/types" },
+    { "path": "./packages/schema" },
+    { "path": "./apps/scripts-web" },
+    { "path": "./apps/scenes-web" },
+    { "path": "./apps/vo-web" },
+    { "path": "./apps/cam-op-pwa" }
+  ]
+}

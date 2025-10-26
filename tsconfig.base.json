@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@packages/shared-lib": ["./packages/shared-lib/src"],
+      "@packages/shared-lib/*": ["./packages/shared-lib/src/*"],
+      "@packages/types": ["./packages/types/src"],
+      "@packages/types/*": ["./packages/types/src/*"],
+      "@packages/schema": ["./packages/schema/src"],
+      "@packages/schema/*": ["./packages/schema/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next", "out"]
+}
