@@ -1,0 +1,548 @@
+/**
+ * RLS Performance Optimization - TDD Test File
+ *
+ * Test Methodology Guardian: Following TDD with performance focus
+ * CRITICAL: Tests WILL FAIL initially - implementing new security model
+ *
+ * PURPOSE: Optimize RLS policies from 4-table JOINs to simpler model
+ * GOAL: Reduce comment query complexity by 30%+ while maintaining security
+ *
+ * CURRENT ISSUE: Every RLS check does: comments → scripts → videos → projects → user_clients
+ * NEW APPROACH: Use materialized view to pre-compute user access patterns
+ *
+ * SECURITY REQUIREMENTS (MAINTAINED):
+ * - Admin: Full access to all comments
+ * - Client: Only comments on assigned projects
+ * - Unauthorized: No access to any comments
+ */
+
+import { describe, test, expect, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
+import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
+import type { Database } from '@elevanaltd/shared-lib/types';
+import {
+  authenticateAndCache,
+  switchToSession,
+  getUserId,
+  clearSessionCache,
+  TEST_USERS,
+  SUPABASE_CONFIG,
+} from '../test/auth-helpers';
+
+// Test configuration - using shared constants
+const SUPABASE_URL = SUPABASE_CONFIG.url;
+const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey;
+
+// Test data
+const TEST_SCRIPT_ID = '0395f3f7-8eb7-4a1f-aa17-27d0d3a38680';
+
+// Session cache for reuse (ARCHITECTURAL FIX - eliminates rate limiting)
+let adminSession: Session;
+let clientSession: Session;
+let unauthorizedSession: Session;
+
+// Helper to measure query execution time
+async function measureQueryTime<T>(operation: () => Promise<T>): Promise<{ result: T; timeMs: number }> {
+  const startTime = Date.now();
+  const result = await operation();
+  const timeMs = Date.now() - startTime;
+  return { result, timeMs };
+}
+
+describe.skip('RLS Performance Optimization - TDD Phase', () => {
+  let supabaseClient: SupabaseClient<Database>;
+
+  beforeAll(async () => {
+    // Create Supabase client
+    supabaseClient = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ARCHITECTURAL FIX: Authenticate ONCE per suite
+    adminSession = await authenticateAndCache(supabaseClient, TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+    clientSession = await authenticateAndCache(supabaseClient, TEST_USERS.CLIENT.email, TEST_USERS.CLIENT.password);
+    unauthorizedSession = await authenticateAndCache(supabaseClient, TEST_USERS.UNAUTHORIZED.email, TEST_USERS.UNAUTHORIZED.password);
+
+    // Switch to admin for setup
+    await switchToSession(supabaseClient, adminSession);
+  });
+
+  beforeEach(async () => {
+    // Clean up test comments (session reuse)
+    try {
+      await switchToSession(supabaseClient, adminSession);
+      await supabaseClient.from('comments').delete().eq('script_id', TEST_SCRIPT_ID);
+    } catch {
+      // Cleanup might fail, but that's OK
+    }
+  });
+
+  afterEach(async () => {
+    // Cleanup (session reuse)
+    try {
+      await switchToSession(supabaseClient, adminSession);
+      await supabaseClient.from('comments').delete().eq('script_id', TEST_SCRIPT_ID);
+    } catch {
+      // Ignore cleanup errors
+    }
+  });
+
+  afterAll(async () => {
+    await supabaseClient.auth.signOut();
+    clearSessionCache();
+  });
+
+  describe('New Security Model - user_accessible_scripts View', () => {
+    test('should have user_accessible_scripts view (WILL FAIL - not implemented)', async () => {
+      await switchToSession(supabaseClient, adminSession);
+
+      // Test the new view exists and works
+      const { data, error } = await supabaseClient
+        .from('user_accessible_scripts')
+        .select('user_id, script_id')
+        .limit(1);
+
+      // This WILL FAIL - view doesn't exist yet
+      expect(error).toBeNull();
+      expect(data).toBeDefined();
+    });
+
+    test('admin should see all scripts in user_accessible_scripts view', async () => {
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+
+      // Admin should see the test script
+      const { data, error } = await supabaseClient
+        .from('user_accessible_scripts')
+        .select('*')
+        .eq('user_id', adminUserId)
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(error).toBeNull();
+      expect(data).toHaveLength(1);
+      expect(data?.[0]?.user_id).toBe(adminUserId);
+      expect(data?.[0]?.script_id).toBe(TEST_SCRIPT_ID);
+    });
+
+    test('client should see only assigned scripts in view', async () => {
+      await switchToSession(supabaseClient, clientSession);
+      const clientUserId = getUserId(clientSession);
+
+      // Client should see the test script (they're assigned to this project)
+      const { data, error } = await supabaseClient
+        .from('user_accessible_scripts')
+        .select('*')
+        .eq('user_id', clientUserId);
+
+      expect(error).toBeNull();
+      expect(data?.some(row => row.script_id === TEST_SCRIPT_ID)).toBe(true);
+    });
+
+    test('unauthorized user should see no scripts in view', async () => {
+      await switchToSession(supabaseClient, unauthorizedSession);
+      const unauthorizedUserId = getUserId(unauthorizedSession);
+
+      const { data, error } = await supabaseClient
+        .from('user_accessible_scripts')
+        .select('*')
+        .eq('user_id', unauthorizedUserId);
+
+      expect(error).toBeNull();
+      expect(data).toEqual([]);
+    });
+  });
+
+  describe('Optimized RLS Policies - Single JOIN', () => {
+    test.skip('should use single JOIN to user_accessible_scripts (WILL FAIL - not implemented - SKIPPED future optimization)', async () => {
+      // Create test comment first
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+      await supabaseClient.from('comments').insert({
+        script_id: TEST_SCRIPT_ID,
+        user_id: adminUserId,
+        content: 'Test comment for performance',
+        start_position: 0,
+        end_position: 10
+      });
+
+      // Test client access with new optimized policy
+      await switchToSession(supabaseClient, clientSession);
+
+      // This should succeed with the new optimized policy
+      const { result, timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .select('*')
+          .eq('script_id', TEST_SCRIPT_ID);
+      });
+
+      expect(result.error).toBeNull();
+      expect(result.data).toHaveLength(1);
+
+      // Performance expectation: should be faster with fewer JOINs
+      // This will establish baseline for comparison
+      console.log(`Optimized query time: ${timeMs}ms`);
+    });
+
+    test('should maintain security boundaries with optimized policies', async () => {
+      // Create test comments
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+      await supabaseClient.from('comments').insert({
+        script_id: TEST_SCRIPT_ID,
+        user_id: adminUserId,
+        content: 'Admin comment for security test',
+        start_position: 0,
+        end_position: 10
+      });
+
+      // Test 1: Admin should see all comments
+      const { data: adminComments, error: adminError } = await supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(adminError).toBeNull();
+      expect(adminComments).toHaveLength(1);
+
+      // Test 2: Client should see comments from assigned projects
+      await switchToSession(supabaseClient, clientSession);
+      const { data: clientComments, error: clientError } = await supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(clientError).toBeNull();
+      expect(clientComments).toHaveLength(1);
+
+      // Test 3: Unauthorized should see nothing
+      await switchToSession(supabaseClient, unauthorizedSession);
+      const { data: unauthorizedComments, error: unauthorizedError } = await supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(unauthorizedError).toBeNull();
+      expect(unauthorizedComments).toEqual([]);
+    });
+  });
+
+  describe('Performance Benchmark - Before vs After', () => {
+    let baselineTimeMs: number;
+
+    beforeAll(async () => {
+      // Establish baseline performance with current complex policies
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+
+      // Create 10 test comments for realistic load
+      for (let i = 0; i < 10; i++) {
+        await supabaseClient.from('comments').insert({
+          script_id: TEST_SCRIPT_ID,
+          user_id: adminUserId,
+          content: `Baseline test comment ${i}`,
+          start_position: i * 5,
+          end_position: i * 5 + 3
+        });
+      }
+
+      // Measure current performance (complex 4-table JOIN)
+      await switchToSession(supabaseClient, clientSession);
+      const { timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .select('*')
+          .eq('script_id', TEST_SCRIPT_ID);
+      });
+
+      baselineTimeMs = timeMs;
+      console.log(`Baseline (current complex RLS) time: ${baselineTimeMs}ms`);
+
+      // Clean up for other tests
+      await switchToSession(supabaseClient, adminSession);
+      await supabaseClient.from('comments').delete().eq('script_id', TEST_SCRIPT_ID);
+    });
+
+    test('should achieve 30%+ performance improvement with optimized RLS', async () => {
+      // Create same test data
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+      for (let i = 0; i < 10; i++) {
+        await supabaseClient.from('comments').insert({
+          script_id: TEST_SCRIPT_ID,
+          user_id: adminUserId,
+          content: `Optimized test comment ${i}`,
+          start_position: i * 5,
+          end_position: i * 5 + 3
+        });
+      }
+
+      // Measure optimized performance (single JOIN to user_accessible_scripts)
+      await switchToSession(supabaseClient, clientSession);
+      const { result, timeMs: optimizedTimeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .select('*')
+          .eq('script_id', TEST_SCRIPT_ID);
+      });
+
+      expect(result.error).toBeNull();
+      expect(result.data).toHaveLength(10);
+
+      // Calculate performance improvement
+      const improvementPercent = ((baselineTimeMs - optimizedTimeMs) / baselineTimeMs) * 100;
+
+      console.log(`Baseline time: ${baselineTimeMs}ms`);
+      console.log(`Optimized time: ${optimizedTimeMs}ms`);
+      console.log(`Performance improvement: ${improvementPercent.toFixed(1)}%`);
+
+      // REQUIREMENT: Must achieve at least 30% improvement
+      expect(improvementPercent).toBeGreaterThanOrEqual(30);
+      expect(optimizedTimeMs).toBeLessThan(baselineTimeMs * 0.7); // 30% reduction
+    });
+
+    test('should maintain performance improvement under load (50 comments)', async () => {
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+
+      // Create 50 comments to stress test
+      const insertPromises = [];
+      for (let i = 0; i < 50; i++) {
+        insertPromises.push(
+          supabaseClient.from('comments').insert({
+            script_id: TEST_SCRIPT_ID,
+            user_id: adminUserId,
+            content: `Load test comment ${i}`,
+            start_position: i * 3,
+            end_position: i * 3 + 2
+          })
+        );
+      }
+      await Promise.all(insertPromises);
+
+      // Measure performance under load
+      await switchToSession(supabaseClient, clientSession);
+      const { result, timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .select('*')
+          .eq('script_id', TEST_SCRIPT_ID)
+          .order('start_position');
+      });
+
+      expect(result.error).toBeNull();
+      expect(result.data).toHaveLength(50);
+
+      // Should complete in reasonable time even under load
+      expect(timeMs).toBeLessThan(500); // <500ms for 50 comments
+      console.log(`Load test (50 comments) time: ${timeMs}ms`);
+    });
+  });
+
+  describe('INSERT/UPDATE/DELETE Performance', () => {
+    test('should optimize INSERT operations with simplified policy', async () => {
+      await switchToSession(supabaseClient, clientSession);
+      const clientUserId = getUserId(clientSession);
+
+      // Measure INSERT performance with new policy
+      const { result, timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .insert({
+            script_id: TEST_SCRIPT_ID,
+            user_id: clientUserId,
+            content: 'Performance test comment for INSERT',
+            start_position: 0,
+            end_position: 10
+          })
+          .select()
+          .single();
+      });
+
+      expect(result.error).toBeNull();
+      expect(result.data).toBeDefined();
+      expect(timeMs).toBeLessThan(200); // Should be fast
+
+      console.log(`Optimized INSERT time: ${timeMs}ms`);
+    });
+
+    test('should optimize UPDATE operations with simplified policy', async () => {
+      // Setup: Create comment to update
+      await switchToSession(supabaseClient, clientSession);
+      const clientUserId = getUserId(clientSession);
+      const { data: comment } = await supabaseClient
+        .from('comments')
+        .insert({
+          script_id: TEST_SCRIPT_ID,
+          user_id: clientUserId,
+          content: 'Original content',
+          start_position: 0,
+          end_position: 10
+        })
+        .select()
+        .single();
+
+      // Measure UPDATE performance
+      const { result, timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .update({ content: 'Updated content' })
+          .eq('id', comment!.id)
+          .select()
+          .single();
+      });
+
+      expect(result.error).toBeNull();
+      expect(result.data?.content).toBe('Updated content');
+      expect(timeMs).toBeLessThan(200); // Should be fast
+
+      console.log(`Optimized UPDATE time: ${timeMs}ms`);
+    });
+
+    test('should optimize DELETE operations with simplified policy', async () => {
+      // Setup: Create comment to delete
+      await switchToSession(supabaseClient, clientSession);
+      const clientUserId = getUserId(clientSession);
+      const { data: comment } = await supabaseClient
+        .from('comments')
+        .insert({
+          script_id: TEST_SCRIPT_ID,
+          user_id: clientUserId,
+          content: 'Comment to delete',
+          start_position: 0,
+          end_position: 10
+        })
+        .select()
+        .single();
+
+      // Measure DELETE performance
+      const { result, timeMs } = await measureQueryTime(async () => {
+        return supabaseClient
+          .from('comments')
+          .delete()
+          .eq('id', comment!.id)
+          .eq('user_id', clientUserId); // User can only delete their own
+      });
+
+      expect(result.error).toBeNull();
+      expect(timeMs).toBeLessThan(200); // Should be fast
+
+      console.log(`Optimized DELETE time: ${timeMs}ms`);
+    });
+  });
+
+  describe('Backward Compatibility', () => {
+    test('should maintain exact same security behavior as current system', async () => {
+      // This test ensures the new system behaves identically to current system
+      // Only difference should be performance, not security behavior
+
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+
+      // Create test comment
+      const { data: comment } = await supabaseClient.from('comments').insert({
+        script_id: TEST_SCRIPT_ID,
+        user_id: adminUserId,
+        content: 'Backward compatibility test',
+        start_position: 0,
+        end_position: 10
+      }).select().single();
+
+      expect(comment).toBeDefined();
+
+      // Test client behavior
+      await switchToSession(supabaseClient, clientSession);
+
+      // Client should be able to read (they're assigned to this project)
+      const { data: clientReadComments, error: clientReadError } = await supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(clientReadError).toBeNull();
+      expect(clientReadComments).toHaveLength(1);
+
+      // Test unauthorized user
+      await switchToSession(supabaseClient, unauthorizedSession);
+
+      const { data: unauthorizedComments, error: unauthorizedError } = await supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID);
+
+      expect(unauthorizedError).toBeNull();
+      expect(unauthorizedComments).toEqual([]);
+
+      // All existing behavior should work exactly the same
+    });
+
+    test('should not break existing application code', async () => {
+      // Test that existing comment operations still work
+      await switchToSession(supabaseClient, adminSession);
+      const adminUserId = getUserId(adminSession);
+
+      // Standard operations that existing code relies on
+      const createOperation = () => supabaseClient.from('comments').insert({
+        script_id: TEST_SCRIPT_ID,
+        user_id: adminUserId,
+        content: 'Compatibility test comment',
+        start_position: 0,
+        end_position: 5
+      }).select().single();
+
+      const filterOperation = () => supabaseClient
+        .from('comments')
+        .select('*')
+        .eq('script_id', TEST_SCRIPT_ID)
+        .is('resolved_at', null);
+
+      const updateOperation = (commentId: string) => supabaseClient
+        .from('comments')
+        .update({ content: 'Updated content' })
+        .eq('id', commentId)
+        .select().single();
+
+      const deleteOperation = (commentId: string) => supabaseClient
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
+
+      // All operations should work without code changes
+      const createResult = await createOperation();
+      const createdComment = createResult.data;
+      expect(createdComment).toBeDefined();
+
+      const filterResult = await filterOperation();
+      const filteredComments = filterResult.data;
+      expect(filteredComments).toHaveLength(1);
+
+      if (createdComment && 'id' in createdComment) {
+        const updateResult = await updateOperation(createdComment.id);
+        const updatedComment = updateResult.data;
+        expect(updatedComment && 'content' in updatedComment ? updatedComment.content : null).toBe('Updated content');
+
+        const deleteResult = await deleteOperation(createdComment.id);
+        expect(deleteResult.error).toBeNull();
+      }
+    });
+  });
+});
+
+/**
+ * IMPLEMENTATION NOTES FOR NEXT PHASE:
+ *
+ * 1. CREATE VIEW user_accessible_scripts AS:
+ *    - For admins: SELECT user_id, script_id FROM user_profiles CROSS JOIN scripts WHERE role = 'admin'
+ *    - For clients: SELECT user_id, script_id FROM user_clients uc JOIN projects p ON uc.client_filter = p.client_filter JOIN videos v ON p.eav_code = v.eav_code JOIN scripts s ON v.id = s.video_id
+ *
+ * 2. REPLACE RLS policies to use single JOIN:
+ *    - OLD: comments → scripts → videos → projects → user_clients (4 JOINs)
+ *    - NEW: comments → user_accessible_scripts (1 JOIN)
+ *
+ * 3. CONSIDER materialized view for even better performance:
+ *    - Refresh on project assignments changes
+ *    - Pre-computed access patterns
+ *
+ * 4. MIGRATION STRATEGY:
+ *    - Create view first
+ *    - Test with current policies
+ *    - Replace policies atomically
+ *    - Monitor performance improvements
+ */
