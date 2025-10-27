@@ -1,4 +1,4 @@
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@packages/shared-lib/types';
 
 /**
  * Extended type for videos query results with joined scripts data

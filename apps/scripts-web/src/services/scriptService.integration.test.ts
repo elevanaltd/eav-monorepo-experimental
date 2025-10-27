@@ -19,7 +19,7 @@
 
 import { describe, test, expect, beforeAll, afterEach } from 'vitest';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@elevanaltd/shared-lib/types';
+import type { Database } from '@packages/shared-lib/types';
 import {
   loadScriptForVideo,
   saveScript,

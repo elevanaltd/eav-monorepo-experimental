@@ -17,12 +17,12 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@packages/shared-lib": ["./packages/shared-lib/src"],
-      "@packages/shared-lib/*": ["./packages/shared-lib/src/*"],
-      "@packages/types": ["./packages/types/src"],
-      "@packages/types/*": ["./packages/types/src/*"],
-      "@packages/schema": ["./packages/schema/src"],
-      "@packages/schema/*": ["./packages/schema/src/*"]
+      "@packages/shared-lib": ["./packages/shared-lib/dist"],
+      "@packages/shared-lib/*": ["./packages/shared-lib/dist/*"],
+      "@packages/types": ["./packages/types/dist"],
+      "@packages/types/*": ["./packages/types/dist/*"],
+      "@packages/schema": ["./packages/schema/dist"],
+      "@packages/schema/*": ["./packages/schema/dist/*"]
     }
   },
   "exclude": ["node_modules", "dist", ".next", "out"]

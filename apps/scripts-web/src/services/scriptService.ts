@@ -11,7 +11,7 @@
 
 import { supabase as defaultClient } from '../lib/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@elevanaltd/shared-lib/types';
+import type { Database } from '@packages/shared-lib/types';
 import {
   validateVideoId,
   validateScriptId,
@@ -21,7 +21,7 @@ import {
   type ComponentData
 } from '../lib/validation';
 import { mapScriptRowToScript, mapScriptComponentRow } from '../lib/mappers/scriptMapper';
-import type { Json } from '@elevanaltd/shared-lib/types';
+import type { Json } from '@packages/shared-lib/types';
 
 // Workflow status enum for scripts
 export type ScriptWorkflowStatus = 'pend_start' | 'draft' | 'in_review' | 'rework' | 'approved' | 'reuse';

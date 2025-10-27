@@ -1,5 +1,5 @@
 {
-  "name": "@elevanaltd/shared-lib",
+  "name": "@packages/shared-lib",
   "version": "0.2.0",
   "description": "Shared Supabase client library for EAV operations",
   "type": "module",
@@ -37,7 +37,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "test": "vitest",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
