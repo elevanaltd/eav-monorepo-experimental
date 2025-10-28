@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build --filter=!vo-web --filter=!cam-op-pwa",
+    "build": "turbo run build --filter=!vo-web --filter=!cam-op-pwa --filter=!scenes-web",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
