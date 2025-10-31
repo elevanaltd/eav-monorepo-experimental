@@ -29,10 +29,12 @@ Project Name: eav-scripts-web
 Root Directory: apps/scripts-web
 Framework Preset: Vite
 Build Command: cd ../.. && pnpm turbo run build --filter=eav-scripts-web
+Install Command: cd ../.. && corepack enable && pnpm install
 Output Directory: dist
-Install Command: pnpm install
 Node Version: 18.x or 20.x
 ```
+
+**Important:** The `installCommand` MUST run from monorepo root (`cd ../..`) to install workspace packages including `@elevanaltd/shared`.
 
 **Environment Variables** (Vercel Dashboard → Settings → Environment Variables):
 ```
@@ -50,8 +52,8 @@ Project Name: eav-scenes-web
 Root Directory: apps/scenes-web
 Framework Preset: Vite
 Build Command: cd ../.. && pnpm turbo run build --filter=eav-scenes-web
+Install Command: cd ../.. && corepack enable && pnpm install
 Output Directory: dist
-Install Command: pnpm install
 Node Version: 18.x or 20.x
 ```
 
@@ -67,8 +69,8 @@ Project Name: eav-vo-web
 Root Directory: apps/vo-web
 Framework Preset: Vite
 Build Command: cd ../.. && pnpm turbo run build --filter=eav-vo-web
+Install Command: cd ../.. && corepack enable && pnpm install
 Output Directory: dist
-Install Command: pnpm install
 Node Version: 18.x or 20.x
 ```
 
@@ -78,8 +80,8 @@ Project Name: eav-cam-op-pwa
 Root Directory: apps/cam-op-pwa
 Framework Preset: Vite
 Build Command: cd ../.. && pnpm turbo run build --filter=eav-cam-op-pwa
+Install Command: cd ../.. && corepack enable && pnpm install
 Output Directory: dist
-Install Command: pnpm install
 Node Version: 18.x or 20.x
 ```
 
@@ -140,6 +142,30 @@ To add custom domains:
 
 ## Troubleshooting
 
+### Build fails with "Cannot find module '@elevanaltd/shared'"
+
+**Problem:** Vercel can't find workspace packages when building from `apps/*/` root directory.
+
+**Solution:** Ensure your `vercel.json` has BOTH commands running from monorepo root:
+
+```json
+{
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=<app-name>",
+  "installCommand": "cd ../.. && corepack enable && pnpm install",
+  "outputDirectory": "dist"
+}
+```
+
+**Why this works:**
+- `cd ../..` moves from `apps/scenes-web/` → monorepo root
+- `pnpm install` at root installs ALL workspace packages
+- `@elevanaltd/shared` gets linked into node_modules
+- Turborepo builds shared package first, then your app
+
+**Common mistake:** Only setting `buildCommand` without `installCommand` - install MUST also run from root!
+
+---
+
 ### Build fails with "Cannot find package"
 - Check that `pnpm-workspace.yaml` includes all packages
 - Verify `turbo.json` has correct dependency graph
@@ -152,6 +178,11 @@ To add custom domains:
 ### Environment variables not working
 - Ensure all VITE_ prefixed variables are set in Vercel dashboard
 - Redeploy after adding variables (automatic env var reload)
+
+### TypeScript errors about implicit 'any' types
+- These are usually secondary errors caused by missing shared package
+- Fix the "Cannot find module" error first
+- TypeScript will resolve once packages are found
 
 ## Vercel Configuration Files
 
