@@ -1,6 +1,6 @@
 // @ts-nocheck - Dynamic workspace imports resolve at runtime via Vite
 import { Suspense, lazy, useEffect } from 'react'
-import { useLocation, Routes, Route, Navigate } from 'react-router-dom'
+import { useLocation, Routes, Route, Navigate, Link } from 'react-router-dom'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import './App.css'
 
@@ -20,8 +20,8 @@ interface AppTab {
 }
 
 const TABS: AppTab[] = [
-  { id: 'scenes', label: 'Scenes', path: '/scenes', status: 'ready' },
   { id: 'scripts', label: 'Scripts', path: '/scripts', status: 'ready' },
+  { id: 'scenes', label: 'Scenes', path: '/scenes', status: 'ready' },
   { id: 'vo', label: 'Voice Over', path: '/vo', status: 'coming-soon' },
   { id: 'cam-op', label: 'Camera Op', path: '/cam-op', status: 'coming-soon' },
 ]
@@ -33,8 +33,8 @@ interface AppConfig {
 }
 
 const APPS: Record<string, AppConfig> = {
-  scenes: { id: 'scenes', ready: true, description: 'Scene planning and shot list management' },
   scripts: { id: 'scripts', ready: true, description: 'Collaborative script editing with component tracking' },
+  scenes: { id: 'scenes', ready: true, description: 'Scene planning and shot list management' },
   vo: { id: 'vo', ready: false, description: 'Voice over generation and management' },
   'cam-op': { id: 'cam-op', ready: false, description: 'Camera operator workflow and coordination' },
 }
@@ -100,8 +100,8 @@ function App() {
             <ul className="shell-tabs">
               {TABS.map(tab => (
                 <li key={tab.id}>
-                  <a
-                    href={tab.path}
+                  <Link
+                    to={tab.path}
                     className={`shell-tab-link ${currentTab?.id === tab.id ? 'active' : ''}`}
                     onClick={e => {
                       if (tab.status === 'coming-soon') {
@@ -111,7 +111,7 @@ function App() {
                   >
                     {tab.label}
                     {tab.status === 'coming-soon' && <span className="soon-badge">Soon</span>}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
