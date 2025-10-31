@@ -1,4 +1,4 @@
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared';
 
 /**
  * Domain model for Project used in UI/State

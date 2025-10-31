@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mapVideoRowToVideo, mapVideoRowsToVideos, filterVideosWithEavCode } from './videoMapper';
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared';
 
 describe('videoMapper', () => {
   describe('mapVideoRowToVideo', () => {

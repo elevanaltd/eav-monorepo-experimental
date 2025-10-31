@@ -16,7 +16,7 @@
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js'
-import type { Database } from '@elevanaltd/shared-lib/types'
+import type { Database } from '@elevanaltd/shared'
 import {
   authenticateAndCache,
   switchToSession,

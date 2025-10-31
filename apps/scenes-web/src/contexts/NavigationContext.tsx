@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { NavigationProvider as SharedNavigationProvider, useNavigation as useSharedNavigation } from '@elevanaltd/shared-lib'
+import { NavigationProvider as SharedNavigationProvider, useNavigation as useSharedNavigation } from '@elevanaltd/shared'
 import type { Project, Video, Script, ScriptComponent } from '../types'
 
 interface NavigationState {
@@ -21,7 +21,7 @@ const NavigationContext = createContext<NavigationContextValue | undefined>(unde
 /**
  * Navigation Context Provider
  *
- * Wraps @elevanaltd/shared-lib NavigationProvider and extends it with app-specific state
+ * Wraps @elevanaltd/shared NavigationProvider and extends it with app-specific state
  * Manages hierarchical navigation: Project → Video → Script → Component
  * Projects/Videos managed by shared-lib; Scripts/Components managed locally
  */
@@ -41,7 +41,7 @@ function NavigationProviderContent({ children }: { children: React.ReactNode }) 
   }
 
   const value: NavigationContextValue = {
-    // @elevanaltd/shared-lib types are compatible - casting local types which are supersets
+    // @elevanaltd/shared types are compatible - casting local types which are supersets
     selectedProject: (sharedNav.selectedProject as unknown as Project) || undefined,
     selectedVideo: (sharedNav.selectedVideo as unknown as Video) || undefined,
     selectedScript,

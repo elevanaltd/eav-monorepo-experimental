@@ -16,8 +16,8 @@
     "validate": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
-    "@elevanaltd/shared-lib": "workspace:*",
-    "@elevanaltd/ui": "workspace:*",
+    "@elevanaltd/shared": "workspace:*",
+    
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/react-query": "^5.90.2",
     "eav-scenes-web": "workspace:*",

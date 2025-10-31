@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mapScriptRowToScript, mapScriptComponentRow, normalizeScriptId } from './scriptMapper';
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared';
 
 describe('scriptMapper', () => {
   describe('normalizeScriptId', () => {

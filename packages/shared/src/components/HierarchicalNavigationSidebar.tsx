@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigation, type Project, type Video } from '@elevanaltd/shared-lib';
+import { useNavigation, type Project, type Video } from '../lib/navigation/index.js';
 import './HierarchicalNavigationSidebar.css';
 
 export interface HierarchicalNavigationSidebarProps {

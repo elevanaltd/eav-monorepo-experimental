@@ -1,4 +1,4 @@
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared';
 import type { ComponentData } from '../../lib/validation';
 import type { Script, ScriptWorkflowStatus } from '../../services/scriptService';
 

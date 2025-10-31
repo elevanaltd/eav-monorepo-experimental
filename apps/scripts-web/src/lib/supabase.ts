@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@elevanaltd/shared-lib/client'
+import { createBrowserClient } from '@elevanaltd/shared'
 
 // Critical-Engineer: consulted for shared library integration and type safety
 // Decision: peerDependencies pattern prevents duplicate @supabase/supabase-js modules

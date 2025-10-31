@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDropdown } from '@elevanaltd/ui'
-import '@elevanaltd/ui/dist/index.css'
+import { useDropdown } from '@elevanaltd/shared'
+import '@elevanaltd/shared/dist/index.css'
 import './AutocompleteField.css'
 
 interface AutocompleteFieldProps {

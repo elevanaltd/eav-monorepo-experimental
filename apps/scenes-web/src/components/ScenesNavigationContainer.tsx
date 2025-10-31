@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { HierarchicalNavigationSidebar, type Video } from '@elevanaltd/ui'
+import { HierarchicalNavigationSidebar, type Video } from '@elevanaltd/shared'
 import { useProjects } from '../hooks/useProjects'
 import { useVideos } from '../hooks/useVideos'
 import { useScripts } from '../hooks/useScripts'

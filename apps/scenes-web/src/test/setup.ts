@@ -13,7 +13,7 @@ import '@testing-library/jest-dom'
  * BroadcastChannel Polyfill for Node Test Environment
  *
  * **Issue**: Node.js BroadcastChannel expects `Event` instances, but Supabase Auth
- * (used by @elevanaltd/shared-lib) dispatches browser-standard `MessageEvent` instances
+ * (used by @elevanaltd/shared) dispatches browser-standard `MessageEvent` instances
  * for cross-tab session synchronization.
  *
  * **Solution**: Stub BroadcastChannel with minimal test-compatible implementation.
@@ -47,8 +47,8 @@ class BroadcastChannelStub extends EventTarget {
 globalThis.BroadcastChannel = BroadcastChannelStub as typeof BroadcastChannel
 
 // Mock shared library to inject test credentials
-vi.mock('@elevanaltd/shared-lib/client', async () => {
-  const actual = await vi.importActual('@elevanaltd/shared-lib/client') as Record<string, unknown>
+vi.mock('@elevanaltd/shared/client', async () => {
+  const actual = await vi.importActual('@elevanaltd/shared/client') as Record<string, unknown>
   return {
     ...actual,
     createBrowserClient: (url?: string, key?: string) => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDropdown } from '../contexts/DropdownContext'
+import { useDropdown } from '../lib/contexts/DropdownContext'
 import './AutocompleteField.css'
 
 export interface AutocompleteFieldProps {

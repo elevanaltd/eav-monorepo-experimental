@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mapProjectRowToProject, mapProjectRowsToProjects } from './projectMapper';
-import type { Tables } from '@elevanaltd/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared';
 
 describe('projectMapper', () => {
   describe('mapProjectRowToProject', () => {

@@ -14,7 +14,7 @@ import { resetFactoryIds } from './factories'
  * BroadcastChannel Polyfill for Node Test Environment
  *
  * **Issue**: Node.js BroadcastChannel expects `Event` instances, but Supabase Auth
- * (used by @elevanaltd/shared-lib) dispatches browser-standard `MessageEvent` instances
+ * (used by @elevanaltd/shared) dispatches browser-standard `MessageEvent` instances
  * for cross-tab session synchronization.
  *
  * **Root Cause**: Node's BroadcastChannel implementation rejects MessageEvent:
@@ -94,8 +94,8 @@ const isIntegrationTest = process.env.VITEST_INTEGRATION === 'true'
 
 // Only mock for unit tests - integration tests need real Supabase client
 if (!isIntegrationTest) {
-  vi.mock('@elevanaltd/shared-lib/client', async () => {
-    const actual = await vi.importActual('@elevanaltd/shared-lib/client') as Record<string, unknown>
+  vi.mock('@elevanaltd/shared/client', async () => {
+    const actual = await vi.importActual('@elevanaltd/shared/client') as Record<string, unknown>
     return {
       ...actual,
       createBrowserClient: (url?: string, key?: string) => {
