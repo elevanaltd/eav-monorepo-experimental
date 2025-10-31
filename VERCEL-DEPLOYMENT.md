@@ -57,11 +57,23 @@ Output Directory: dist
 Node Version: 18.x or 20.x
 ```
 
-**Environment Variables**:
+**Environment Variables** (⚠️ MUST set for ALL environments):
+
+In Vercel Dashboard → Settings → Environment Variables, add:
+
 ```
-VITE_SUPABASE_URL=<your-supabase-url>
-VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+VITE_SUPABASE_URL=https://zbxvjyrbkycbfhwmmnmy.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpieHZqeXJia3ljYmZod21tbm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTUyMDc5MzAsImV4cCI6MTcyNjc0MzkzMH0.TL8c7YaZo1e5Wj4D8nZ6k5M0pQ9rS1tU2vX3yA4bC5D
 ```
+
+**Critical Steps:**
+1. Check ALL environment checkboxes: Production ✅ Preview ✅ Development ✅
+2. After adding variables → **Redeploy** (not just rebuild)
+3. Uncheck "Use existing build cache" to force fresh build with new env vars
+
+**Why this matters:**
+- Vite bundles env vars at **build time** (not runtime)
+- Missing during build = "Missing VITE_SUPABASE_URL environment variable" error at runtime
 
 #### VO Web (Coming Soon)
 ```
