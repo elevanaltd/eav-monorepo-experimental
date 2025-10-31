@@ -205,14 +205,15 @@ export function ScenesWorkspace() {
   )
 }
 
-function App() {
+// Embedded component for use in multi-app shells (no BrowserRouter)
+// Used by internal-shell for route-based lazy loading
+export function EmbeddedScenes() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <NavigationProvider>
-            <LastSavedProvider>
-              <ErrorBoundary>
+      <AuthProvider>
+        <NavigationProvider>
+          <LastSavedProvider>
+            <ErrorBoundary>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route
@@ -225,12 +226,20 @@ function App() {
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-              </ErrorBoundary>
-            </LastSavedProvider>
-          </NavigationProvider>
-        </AuthProvider>
-      </BrowserRouter>
+            </ErrorBoundary>
+          </LastSavedProvider>
+        </NavigationProvider>
+      </AuthProvider>
     </QueryClientProvider>
+  )
+}
+
+// Standalone app with router (for independent deployment)
+function App() {
+  return (
+    <BrowserRouter>
+      <EmbeddedScenes />
+    </BrowserRouter>
   )
 }
 

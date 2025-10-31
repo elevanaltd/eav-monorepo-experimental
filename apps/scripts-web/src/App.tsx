@@ -81,27 +81,36 @@ function MainApp() {
   )
 }
 
-function App() {
+// Embedded component for use in multi-app shells (no BrowserRouter)
+// Used by internal-shell for route-based lazy loading
+export function EmbeddedScripts() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <MainApp />
-                </PrivateRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <MainApp />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </AuthProvider>
     </QueryClientProvider>
+  )
+}
+
+// Standalone app with router (for independent deployment)
+function App() {
+  return (
+    <Router>
+      <EmbeddedScripts />
+    </Router>
   )
 }
 
