@@ -70,22 +70,37 @@ Test how git worktrees work with:
 ```
 /Volumes/HestAI-Projects/eav-monorepo-experimental/
 ├── apps/
-│   ├── scripts-web/          (actual production code)
-│   ├── scenes-web/           (minimal stub)
-│   ├── vo-web/               (minimal stub)
-│   └── cam-op-pwa/           (minimal stub)
+│   ├── scripts-web/          (collaborative script editing)
+│   ├── scenes-web/           (scene planning & shot lists)
+│   ├── vo-web/               (voice over generation)
+│   └── cam-op-pwa/           (camera operator workflow)
 ├── packages/
-│   ├── shared-lib/           (actual production code, core modules)
-│   ├── types/                (minimal stub)
-│   └── schema/               (minimal stub)
+│   ├── shared/               (shared library - utilities, components, types)
+│   ├── types/                (shared TypeScript definitions)
+│   └── schema/               (database schema types)
 ├── supabase/
-│   ├── migrations/
-│   └── seed.sql
+│   ├── migrations/           (database migrations)
+│   └── seed.sql              (test data)
 └── worktrees/                (git worktrees - each is a full checkout)
     ├── scripts-web/          → feature/scripts-app-test
     ├── scenes-web/           → feature/scenes-app-test
     └── shared-lib/           → feature/shared-lib-test
 ```
+
+## Deployment Architecture
+
+**Each app deploys independently to its own Vercel project:**
+
+```
+Repository: elevanaltd/eav-monorepo-experimental
+    ↓
+    ├─→ scripts.eav-internal.com (apps/scripts-web)
+    ├─→ scenes.eav-internal.com (apps/scenes-web)
+    ├─→ vo.eav-internal.com (apps/vo-web)
+    └─→ cam-op.eav-internal.com (apps/cam-op-pwa)
+```
+
+**See [`VERCEL-DEPLOYMENT.md`](./VERCEL-DEPLOYMENT.md) for complete deployment instructions.**
 
 ## Git Worktrees Explained
 
