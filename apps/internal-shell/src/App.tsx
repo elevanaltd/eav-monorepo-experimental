@@ -6,11 +6,30 @@ import './App.css'
 
 const queryClient = new QueryClient()
 
-// Lazy-load embedded sub-apps from workspace packages
-// Using embedded components (no BrowserRouter) to avoid nested routers
-// Dynamic imports resolve at runtime via Vite's path resolution
-const ScenesApp = lazy(() => import('eav-scenes-web').then(m => ({ default: m.EmbeddedScenes })))
-const ScriptsApp = lazy(() => import('eav-scripts-web').then(m => ({ default: m.EmbeddedScripts })))
+// Lazy-load sub-apps from workspace packages with error handling
+const ScenesApp = lazy(() =>
+  import('eav-scenes-web')
+    .then(m => {
+      console.log('✅ scenes-web loaded:', m)
+      return { default: m.App }
+    })
+    .catch(err => {
+      console.error('❌ Failed to load scenes-web:', err)
+      throw err
+    })
+)
+
+const ScriptsApp = lazy(() =>
+  import('eav-scripts-web')
+    .then(m => {
+      console.log('✅ scripts-web loaded:', m)
+      return { default: m.App }
+    })
+    .catch(err => {
+      console.error('❌ Failed to load scripts-web:', err)
+      throw err
+    })
+)
 
 interface AppTab {
   id: string
@@ -74,6 +93,7 @@ function ComingSoonScreen({ appId }: { appId: string }) {
 }
 
 function LoadingScreen() {
+  console.log('🔄 Loading screen displayed')
   return (
     <div className="shell-loading">
       <p>Loading app...</p>
@@ -81,12 +101,31 @@ function LoadingScreen() {
   )
 }
 
+function ErrorScreen({ error }: { error: Error }) {
+  console.error('💥 Error screen:', error)
+  return (
+    <div className="shell-error" style={{ padding: '2rem', color: 'red' }}>
+      <h2>Failed to load app</h2>
+      <p>{error.message}</p>
+      <pre style={{ background: '#f5f5f5', padding: '1rem', overflow: 'auto' }}>
+        {error.stack}
+      </pre>
+    </div>
+  )
+}
+
 function App() {
   const location = useLocation()
 
+  useEffect(() => {
+    console.log('🧭 Location changed:', location.pathname)
+  }, [location])
+
   const getCurrentTab = () => {
     const appId = location.pathname.split('/')[1]
-    return TABS.find(t => t.id === appId)
+    const tab = TABS.find(t => t.id === appId)
+    console.log('📍 Current path:', location.pathname, '| Tab:', tab?.id || 'none')
+    return tab
   }
 
   const currentTab = getCurrentTab()
@@ -121,12 +160,60 @@ function App() {
         <main className="shell-content" data-testid="shell-content">
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
-              <Route path="/" element={<WelcomeScreen />} />
-              <Route path="/scenes/*" element={<ScenesApp />} />
-              <Route path="/scripts/*" element={<ScriptsApp />} />
-              <Route path="/vo" element={<ComingSoonScreen appId="vo" />} />
-              <Route path="/cam-op" element={<ComingSoonScreen appId="cam-op" />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route
+                path="/"
+                element={
+                  <>
+                    {console.log('🏠 Rendering WelcomeScreen')}
+                    <WelcomeScreen />
+                  </>
+                }
+              />
+              <Route
+                path="/scenes/*"
+                element={
+                  <>
+                    {console.log('🎬 Rendering ScenesApp')}
+                    <ScenesApp />
+                  </>
+                }
+              />
+              <Route
+                path="/scripts/*"
+                element={
+                  <>
+                    {console.log('📝 Rendering ScriptsApp')}
+                    <ScriptsApp />
+                  </>
+                }
+              />
+              <Route
+                path="/vo"
+                element={
+                  <>
+                    {console.log('🎙️ Rendering VO Coming Soon')}
+                    <ComingSoonScreen appId="vo" />
+                  </>
+                }
+              />
+              <Route
+                path="/cam-op"
+                element={
+                  <>
+                    {console.log('📹 Rendering Cam-Op Coming Soon')}
+                    <ComingSoonScreen appId="cam-op" />
+                  </>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <>
+                    {console.log('🔄 Catch-all route - redirecting to /')}
+                    <Navigate to="/" replace />
+                  </>
+                }
+              />
             </Routes>
           </Suspense>
         </main>
