@@ -1,9 +1,9 @@
 # EAV Monorepo Experimental - Git Worktrees Testing
 
-**⚠️ POC STATUS: FROZEN - VALIDATION COMPLETE ✅**
+**⚠️ POC STATUS: FROZEN - VALIDATION COMPLETE + ARCHITECTURE CORRECTED ✅**
 
-**Date:** October 30, 2025
-**Status:** All technical gates passed (Q1-Q6 validated)
+**Date:** October 31, 2025 (Updated)
+**Status:** All technical gates passed (Q1-Q6 validated) + Deployment model validated
 **Decision:** PROCEED TO HUB-AND-SPOKE PHASE 0
 
 ---
@@ -18,6 +18,8 @@ This experimental repository has **successfully validated** the monorepo technic
 ✅ **Q4: CI Efficiency** - 42-58% faster parallel builds
 ✅ **Q5: CI Optimization** - 82% speedup on cache hits
 ✅ **Q6: CI Selective Execution** - Affected detection works (no 25-min CI nightmare)
+✅ **Q7: Vercel Monorepo Deployment** - Independent multi-project model validated (Oct 31)
+✅ **Q8: Architectural Correctness** - Removed internal-shell, confirmed shared library pattern (Oct 31)
 
 **All validation evidence:** `/Volumes/HestAI-Projects/eav-ops/coordination/poc-phase-0/`
 
@@ -56,6 +58,26 @@ This experimental repository has **successfully validated** the monorepo technic
 **EXPERIMENTAL REPOSITORY FOR TESTING PURPOSES ONLY**
 
 This repository validated monorepo technical feasibility for the EAV Operations Suite. It contains actual code from the production system but is configured for testing the **developer experience** with git worktrees, Turborepo, and Vercel deployment.
+
+### Key Validations (Oct 30-31, 2025)
+
+**Technical Gates (Q1-Q6):**
+- Schema access with RLS policies ✅
+- Vercel deployment performance (324ms cold start) ✅
+- Zero blast radius for independent deployments ✅
+- CI build parallelization (42-58% faster) ✅
+- Turborepo cache optimization (82% speedup) ✅
+- Affected detection preventing 25-min CI nightmare ✅
+
+**Architectural Validations (Q7-Q8):**
+- **Vercel Monorepo Model**: Validated deploying 4 independent apps from one repo to separate Vercel projects ✅
+- **Shared Library Pattern**: Confirmed `@elevanaltd/shared` as correct architecture (not app-to-app imports) ✅
+- **Independent Deployment**: Each app deploys to its own domain with bundled shared code ✅
+- **Removed Anti-Pattern**: Deleted `internal-shell` (embedded routing violated independent deployment) ✅
+
+**Documentation:**
+- Complete deployment guide: [`VERCEL-DEPLOYMENT.md`](./VERCEL-DEPLOYMENT.md)
+- All validation evidence: `/Volumes/HestAI-Projects/eav-ops/coordination/poc-phase-0/`
 
 ## Purpose
 
