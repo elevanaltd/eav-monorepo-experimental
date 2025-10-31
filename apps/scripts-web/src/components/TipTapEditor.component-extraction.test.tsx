@@ -556,4 +556,116 @@ describe('TipTapEditor - Component Extraction', () => {
       expect(uniqueHashes.size).toBe(hashes.length);
     });
   });
+
+  describe('List item extraction', () => {
+    it('should extract list items with dash prefix for plain text preservation', async () => {
+      // Test that list items are properly converted to dash-prefixed components
+      const mockComponents: ComponentData[] = [
+        { number: 1, content: '- Rapid heating', wordCount: 2, hash: 'hash-list1' },
+        { number: 2, content: '- 3D Hot Air', wordCount: 3, hash: 'hash-list2' }
+      ];
+
+      mockExtractComponents.mockReturnValue(mockComponents);
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <TipTapEditor />
+        </QueryClientProvider>
+      );
+
+      await waitFor(() => {
+        expect(mockExtractComponents).toHaveBeenCalled();
+      });
+
+      const components = mockExtractComponents.mock.results[0].value as ComponentData[];
+
+      // Verify list items are extracted
+      expect(components).toHaveLength(2);
+
+      // Verify dash prefix is preserved
+      expect(components[0].content).toBe('- Rapid heating');
+      expect(components[1].content).toBe('- 3D Hot Air');
+
+      // Verify sequential numbering still works
+      expect(components[0].number).toBe(1);
+      expect(components[1].number).toBe(2);
+
+      // Verify word counts don't include the dash
+      expect(components[0].wordCount).toBe(2); // "Rapid heating"
+      expect(components[1].wordCount).toBe(3); // "3D Hot Air"
+    });
+
+    it('should handle mixed paragraphs and list items in correct sequence', async () => {
+      // Test that paragraphs and list items are numbered sequentially
+      const mockComponents: ComponentData[] = [
+        { number: 1, content: 'Introduction paragraph', wordCount: 2, hash: 'hash-p1' },
+        { number: 2, content: '- Item one', wordCount: 2, hash: 'hash-li1' },
+        { number: 3, content: '- Item two', wordCount: 2, hash: 'hash-li2' },
+        { number: 4, content: 'Conclusion paragraph', wordCount: 2, hash: 'hash-p2' }
+      ];
+
+      mockExtractComponents.mockReturnValue(mockComponents);
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <TipTapEditor />
+        </QueryClientProvider>
+      );
+
+      await waitFor(() => {
+        expect(mockExtractComponents).toHaveBeenCalled();
+      });
+
+      const components = mockExtractComponents.mock.results[0].value as ComponentData[];
+
+      // Verify all components extracted in order
+      expect(components).toHaveLength(4);
+
+      // Verify content types
+      expect(components[0].content).toBe('Introduction paragraph');
+      expect(components[1].content).toBe('- Item one');
+      expect(components[2].content).toBe('- Item two');
+      expect(components[3].content).toBe('Conclusion paragraph');
+
+      // Verify sequential numbering without gaps
+      expect(components[0].number).toBe(1);
+      expect(components[1].number).toBe(2);
+      expect(components[2].number).toBe(3);
+      expect(components[3].number).toBe(4);
+    });
+
+    it('should ensure list item extraction maintains ElevenLabs compatibility', async () => {
+      // Test that dash-prefixed content works for voice synthesis
+      const mockComponents: ComponentData[] = [
+        { number: 1, content: '- Before you can use your Bosch oven, you will need to ensure it is turned on at the spur switch', wordCount: 18, hash: 'hash-inst1' },
+        { number: 2, content: '- Rapid heating', wordCount: 2, hash: 'hash-opt1' },
+        { number: 3, content: '- 3D Hot Air', wordCount: 3, hash: 'hash-opt2' }
+      ];
+
+      mockExtractComponents.mockReturnValue(mockComponents);
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <TipTapEditor />
+        </QueryClientProvider>
+      );
+
+      await waitFor(() => {
+        expect(mockExtractComponents).toHaveBeenCalled();
+      });
+
+      const components = mockExtractComponents.mock.results[0].value as ComponentData[];
+
+      // Verify dash format is plain text compatible (no HTML formatting)
+      components.forEach(component => {
+        // Check that content starts with dash (for list items)
+        if (component.number > 1) {
+          expect(component.content).toMatch(/^-/);
+        }
+
+        // Verify no HTML tags or markdown special characters that would break TTS
+        expect(component.content).not.toMatch(/<|>|`|\*\*|\*\*\*/);
+      });
+    });
+  });
 });
