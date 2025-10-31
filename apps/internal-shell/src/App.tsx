@@ -6,7 +6,7 @@ import './App.css'
 
 const queryClient = new QueryClient()
 
-// Lazy-load embedded sub-apps (router-less versions for embedding)
+// Lazy-load EMBEDDED sub-apps (no BrowserRouter) to avoid nested router errors
 const ScenesApp = lazy(() =>
   import('eav-scenes-web')
     .then(m => {
