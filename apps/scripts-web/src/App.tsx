@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './contexts/AuthContext'
@@ -81,7 +81,9 @@ function MainApp() {
   )
 }
 
-function App() {
+// Embedded component for use in multi-app shells (no BrowserRouter)
+// Used by internal-shell for route-based lazy loading
+export function EmbeddedScripts() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -100,6 +102,15 @@ function App() {
         </Routes>
       </AuthProvider>
     </QueryClientProvider>
+  )
+}
+
+// Standalone app with router (for independent deployment)
+function App() {
+  return (
+    <Router>
+      <EmbeddedScripts />
+    </Router>
   )
 }
 

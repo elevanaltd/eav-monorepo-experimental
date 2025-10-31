@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '@elevanaltd/shared/dist/index.css'
 import { AuthProvider } from './contexts/AuthContext'
@@ -205,30 +205,41 @@ export function ScenesWorkspace() {
   )
 }
 
-function App() {
+// Embedded component for use in multi-app shells (no BrowserRouter)
+// Used by internal-shell for route-based lazy loading
+export function EmbeddedScenes() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NavigationProvider>
           <LastSavedProvider>
             <ErrorBoundary>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <ScenesWorkspace />
-                  </PrivateRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <ScenesWorkspace />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
             </ErrorBoundary>
           </LastSavedProvider>
         </NavigationProvider>
       </AuthProvider>
     </QueryClientProvider>
+  )
+}
+
+// Standalone app with router (for independent deployment)
+function App() {
+  return (
+    <BrowserRouter>
+      <EmbeddedScenes />
+    </BrowserRouter>
   )
 }
 

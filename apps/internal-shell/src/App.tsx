@@ -6,10 +6,11 @@ import './App.css'
 
 const queryClient = new QueryClient()
 
-// Lazy-load sub-apps from workspace packages
+// Lazy-load embedded sub-apps from workspace packages
+// Using embedded components (no BrowserRouter) to avoid nested routers
 // Dynamic imports resolve at runtime via Vite's path resolution
-const ScenesApp = lazy(() => import('eav-scenes-web').then(m => ({ default: m.App })))
-const ScriptsApp = lazy(() => import('eav-scripts-web').then(m => ({ default: m.App })))
+const ScenesApp = lazy(() => import('eav-scenes-web').then(m => ({ default: m.EmbeddedScenes })))
+const ScriptsApp = lazy(() => import('eav-scripts-web').then(m => ({ default: m.EmbeddedScripts })))
 
 interface AppTab {
   id: string
@@ -19,8 +20,8 @@ interface AppTab {
 }
 
 const TABS: AppTab[] = [
-  { id: 'scripts', label: 'Scripts', path: '/scripts', status: 'ready' },
   { id: 'scenes', label: 'Scenes', path: '/scenes', status: 'ready' },
+  { id: 'scripts', label: 'Scripts', path: '/scripts', status: 'ready' },
   { id: 'vo', label: 'Voice Over', path: '/vo', status: 'coming-soon' },
   { id: 'cam-op', label: 'Camera Op', path: '/cam-op', status: 'coming-soon' },
 ]
@@ -32,8 +33,8 @@ interface AppConfig {
 }
 
 const APPS: Record<string, AppConfig> = {
-  scripts: { id: 'scripts', ready: true, description: 'Collaborative script editing with component tracking' },
   scenes: { id: 'scenes', ready: true, description: 'Scene planning and shot list management' },
+  scripts: { id: 'scripts', ready: true, description: 'Collaborative script editing with component tracking' },
   vo: { id: 'vo', ready: false, description: 'Voice over generation and management' },
   'cam-op': { id: 'cam-op', ready: false, description: 'Camera operator workflow and coordination' },
 }
