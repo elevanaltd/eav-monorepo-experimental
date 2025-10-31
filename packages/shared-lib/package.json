@@ -1,5 +1,5 @@
 {
-  "name": "@packages/shared-lib",
+  "name": "@elevanaltd/shared-lib",
   "version": "0.2.0",
   "description": "Shared Supabase client library for EAV operations",
   "type": "module",

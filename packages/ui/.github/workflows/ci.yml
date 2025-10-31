@@ -1,0 +1,96 @@
+# Constitutional Enforcement for @elevanaltd/ui
+# Quality gates enforced on every push/PR to prevent regression reaching 8 dependent apps
+#
+# CONSTITUTIONAL ENFORCEMENT:
+# - QUALITY_GATES::BLOCKING[lint+typecheck+tests] (Constitutional mandate)
+# - TEST_DISCIPLINE::BLOCKING[no_skipped_tests] (Testguard requirement)
+# - BUILD_VALIDATION::BLOCKING[CSS_bundling+exports_verified] (Critical-Engineer requirement)
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  quality-gates:
+    name: Quality Gates (lint + typecheck + test + build + CSS validation)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read  # Required to download @elevanaltd/shared-lib from GitHub Packages
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com/'
+          scope: '@elevanaltd'
+          always-auth: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies (reproducible build)
+        run: npm ci
+
+      - name: Run lint (must pass)
+        run: npm run lint
+
+      - name: Run typecheck (must pass)
+        run: npm run typecheck
+
+      - name: Run tests with coverage (must pass)
+        run: npm test -- --run --coverage
+
+      - name: Enforce no skipped tests (test discipline)
+        run: |
+          if grep -r "test\.skip\|describe\.skip\|test\.todo\|it\.skip" src/; then
+            echo "ERROR: Skipped tests detected - fix the code, not the test"
+            echo "This violates test discipline: NEVER[fix_test_instead_of_code]"
+            exit 1
+          fi
+          echo "✓ No skipped tests found"
+
+      - name: Build package (verify bundling)
+        run: npm run build
+
+      - name: Verify CSS bundling (UI package requirement)
+        run: |
+          if [ ! -f "dist/index.css" ]; then
+            echo "ERROR: CSS not bundled - dist/index.css missing"
+            exit 1
+          fi
+
+          # Verify CSS is not empty
+          if [ ! -s "dist/index.css" ]; then
+            echo "ERROR: dist/index.css is empty"
+            exit 1
+          fi
+
+          echo "✓ CSS bundled successfully ($(wc -l < dist/index.css) lines)"
+
+      - name: Verify component exports
+        run: |
+          # Check main entry point
+          if [ ! -f "dist/index.d.ts" ] || [ ! -f "dist/index.js" ]; then
+            echo "ERROR: Main entry point missing"
+            exit 1
+          fi
+
+          # Check CSS export
+          if [ ! -f "dist/index.css" ]; then
+            echo "ERROR: CSS export missing"
+            exit 1
+          fi
+
+          echo "✓ All package exports verified"
+
+      - name: Verify package can be published (dry run)
+        run: npm publish --dry-run

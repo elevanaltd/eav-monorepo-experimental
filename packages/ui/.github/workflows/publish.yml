@@ -1,0 +1,65 @@
+# GitHub Packages Publication Workflow for @elevanaltd/ui
+# Constitutional mandate: CI_QUALITY_GATES - lint+typecheck+tests must pass before publication
+# Trigger: Version tags (e.g., v0.1.0, v0.2.0)
+
+name: Publish to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags
+
+jobs:
+  publish:
+    name: Publish @elevanaltd/ui
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write  # Required for GitHub Packages publication
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com/'
+          scope: '@elevanaltd'
+          always-auth: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies (reproducible build)
+        run: npm ci
+
+      - name: Run quality gates (constitutional requirement)
+        run: |
+          echo "✓ Running lint..."
+          npm run lint
+          echo "✓ Running typecheck..."
+          npm run typecheck
+          echo "✓ Running tests..."
+          npm test -- --run
+          echo "✓ All quality gates passed"
+
+      - name: Build package
+        run: npm run build
+
+      - name: Verify CSS bundling
+        run: |
+          if [ ! -f "dist/index.css" ] || [ ! -s "dist/index.css" ]; then
+            echo "ERROR: CSS bundling failed"
+            exit 1
+          fi
+          echo "✓ CSS bundled: $(wc -l < dist/index.css) lines"
+
+      - name: Verify package contents
+        run: npm publish --dry-run
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
