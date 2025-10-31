@@ -82,7 +82,7 @@ function MainApp() {
 }
 
 // Embedded component for use in multi-app shells (no BrowserRouter)
-// Used by internal-shell for route-based lazy loading
+// Separates routing concerns for potential future composition patterns
 export function EmbeddedScripts() {
   return (
     <QueryClientProvider client={queryClient}>
