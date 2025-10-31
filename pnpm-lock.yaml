@@ -51,34 +51,100 @@ importers:
 
   apps/scenes-web:
     dependencies:
-      '@packages/shared-lib':
-        specifier: workspace:*
-        version: link:../../packages/shared-lib
+      '@elevanaltd/shared-lib':
+        specifier: ^0.2.0
+        version: 0.2.0(@supabase/supabase-js@2.76.1)(react@18.3.1)
+      '@elevanaltd/ui':
+        specifier: ^0.4.0
+        version: 0.4.0(@supabase/supabase-js@2.76.1)(react-dom@18.3.1)(react@18.3.1)
       '@supabase/supabase-js':
-        specifier: ^2.47.7
+        specifier: ^2.76.1
         version: 2.76.1
-      next:
-        specifier: 14.2.0
-        version: 14.2.0(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/react-query':
+        specifier: ^5.90.2
+        version: 5.90.5(react@18.3.1)
       react:
-        specifier: ^18.3.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.3.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^7.9.2
+        version: 7.9.4(react-dom@18.3.1)(react@18.3.1)
+      zod:
+        specifier: ^4.1.11
+        version: 4.1.12
+      zustand:
+        specifier: ^5.0.8
+        version: 5.0.8(@types/react@18.3.26)(react@18.3.1)
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.38.0
+        version: 9.38.0
+      '@testing-library/jest-dom':
+        specifier: ^6.1.4
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^14.1.2
+        version: 14.3.1(@types/react@18.3.26)(react-dom@18.3.1)(react@18.3.1)
+      '@testing-library/user-event':
+        specifier: ^14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/node':
-        specifier: ^20
-        version: 20.19.23
+        specifier: ^24.5.2
+        version: 24.9.1
       '@types/react':
-        specifier: ^18
+        specifier: ^18.2.37
         version: 18.3.26
       '@types/react-dom':
-        specifier: ^18
+        specifier: ^18.2.15
         version: 18.3.7(@types/react@18.3.26)
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.46.2
+        version: 8.46.2(@typescript-eslint/parser@8.46.2)(eslint@9.38.0)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.46.2
+        version: 8.46.2(eslint@9.38.0)(typescript@5.9.3)
+      '@vitejs/plugin-react':
+        specifier: ^4.1.1
+        version: 4.7.0(vite@7.1.12)
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4)
+      dotenv:
+        specifier: ^17.2.2
+        version: 17.2.3
+      eslint:
+        specifier: ^9.38.0
+        version: 9.38.0
+      eslint-plugin-react-hooks:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.38.0)
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.4
+        version: 0.4.24(eslint@9.38.0)
+      globals:
+        specifier: ^16.4.0
+        version: 16.4.0
+      happy-dom:
+        specifier: ^20.0.2
+        version: 20.0.8
+      jsdom:
+        specifier: ^23.0.1
+        version: 23.2.0
       typescript:
-        specifier: ^5
+        specifier: ^5.2.2
         version: 5.9.3
+      vite:
+        specifier: ^7.1.7
+        version: 7.1.12(@types/node@24.9.1)(tsx@4.20.6)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.9.1)(happy-dom@20.0.8)(jsdom@23.2.0)(tsx@4.20.6)
 
   apps/scripts-web:
     dependencies:
@@ -656,6 +722,31 @@ packages:
     dependencies:
       '@edge-runtime/primitives': 4.1.0
     dev: true
+
+  /@elevanaltd/shared-lib@0.2.0(@supabase/supabase-js@2.76.1)(react@18.3.1):
+    resolution: {integrity: sha512-raoDdvBOBj11kvZwBM3xp+wK33JXaamGxNHR3dPnDuEDSZW/ogEzyWT7CF3sKy9CWmwQdSxNlZk752ImuLSyoA==, tarball: https://npm.pkg.github.com/download/@elevanaltd/shared-lib/0.2.0/0770cd225fb4512c004526c0cb95ba72d4b21c29}
+    engines: {node: '>=20.0.0', npm: '>=10.0.0'}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.75.0
+      react: ^18.0.0
+    dependencies:
+      '@supabase/supabase-js': 2.76.1
+      '@tanstack/react-query': 5.90.5(react@18.3.1)
+      react: 18.3.1
+    dev: false
+
+  /@elevanaltd/ui@0.4.0(@supabase/supabase-js@2.76.1)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-S0QFm73xW0blGDnefPQ086Q0ha1wvCjUkztZVAj+fBL6dVmSqVn3LGeB2W/PkSoV+A/YdQg3iPDiYh+Hw2Zj9w==, tarball: https://npm.pkg.github.com/download/@elevanaltd/ui/0.4.0/3c1025f0d959c94f1fbdfd724d13d0f4efea4fba}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@elevanaltd/shared-lib': 0.2.0(@supabase/supabase-js@2.76.1)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@supabase/supabase-js'
+    dev: false
 
   /@esbuild/aix-ppc64@0.25.11:
     resolution: {integrity: sha512-Xt1dOL13m8u0WE8iplx9Ibbm+hFAO0GsU2P34UNoDGvZYkY8ifSiy6Zuc1lYxfG7svWE2fzqCUmFp5HCn51gJg==}
