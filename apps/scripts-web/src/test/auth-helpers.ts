@@ -27,7 +27,7 @@
  */
 
 import type { SupabaseClient, Session } from '@supabase/supabase-js'
-import type { Database } from '@packages/shared-lib/types'
+import type { Database } from '@elevanaltd/shared-lib/types'
 
 /**
  * Test User Credentials

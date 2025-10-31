@@ -1,4 +1,4 @@
-import type { Tables } from '@packages/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared-lib/types';
 
 /**
  * Valid user roles as per business requirements

@@ -26,7 +26,7 @@
  * ```
  */
 
-import { Database } from '@packages/shared-lib/types'
+import { Database } from '@elevanaltd/shared-lib/types'
 
 // Type aliases for database tables
 type Project = Database['public']['Tables']['projects']['Row']

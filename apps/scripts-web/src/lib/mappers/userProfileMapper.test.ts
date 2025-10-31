@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mapUserProfileRowToUserProfile, isValidUserRole, validateAndNormalizeRole } from './userProfileMapper';
-import type { Tables } from '@packages/shared-lib/types';
+import type { Tables } from '@elevanaltd/shared-lib/types';
 
 describe('userProfileMapper', () => {
   describe('isValidUserRole', () => {
