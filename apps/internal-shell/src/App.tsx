@@ -1,5 +1,5 @@
 // @ts-nocheck - Dynamic workspace imports resolve at runtime via Vite
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import './App.css'
@@ -19,8 +19,8 @@ interface AppTab {
 }
 
 const TABS: AppTab[] = [
-  { id: 'scripts', label: 'Scripts', path: '/scripts', status: 'ready' },
   { id: 'scenes', label: 'Scenes', path: '/scenes', status: 'ready' },
+  { id: 'scripts', label: 'Scripts', path: '/scripts', status: 'ready' },
   { id: 'vo', label: 'Voice Over', path: '/vo', status: 'coming-soon' },
   { id: 'cam-op', label: 'Camera Op', path: '/cam-op', status: 'coming-soon' },
 ]
@@ -32,8 +32,8 @@ interface AppConfig {
 }
 
 const APPS: Record<string, AppConfig> = {
-  scripts: { id: 'scripts', ready: true, description: 'Collaborative script editing with component tracking' },
   scenes: { id: 'scenes', ready: true, description: 'Scene planning and shot list management' },
+  scripts: { id: 'scripts', ready: true, description: 'Collaborative script editing with component tracking' },
   vo: { id: 'vo', ready: false, description: 'Voice over generation and management' },
   'cam-op': { id: 'cam-op', ready: false, description: 'Camera operator workflow and coordination' },
 }
