@@ -6,12 +6,12 @@ import './App.css'
 
 const queryClient = new QueryClient()
 
-// Lazy-load sub-apps from workspace packages with error handling
+// Lazy-load embedded sub-apps (router-less versions for embedding)
 const ScenesApp = lazy(() =>
   import('eav-scenes-web')
     .then(m => {
       console.log('✅ scenes-web loaded:', m)
-      return { default: m.App }
+      return { default: m.EmbeddedScenes }
     })
     .catch(err => {
       console.error('❌ Failed to load scenes-web:', err)
@@ -23,7 +23,7 @@ const ScriptsApp = lazy(() =>
   import('eav-scripts-web')
     .then(m => {
       console.log('✅ scripts-web loaded:', m)
-      return { default: m.App }
+      return { default: m.EmbeddedScripts }
     })
     .catch(err => {
       console.error('❌ Failed to load scripts-web:', err)
