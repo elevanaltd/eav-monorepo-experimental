@@ -127,14 +127,10 @@ export function AutocompleteField({
     setFilteredOptions(filtered)
     setSelectedIndex(-1)
 
-    // Open this dropdown if there are options to show
-    if (filtered.length > 0 || inputValue.length > 0) {
-      setActiveDropdownId(dropdownId)
-    } else if (filtered.length === 0 && inputValue.length === 0) {
-      // Close if no options and no input
-      setActiveDropdownId(null)
-    }
-  }, [inputValue, options, isLoading, dropdownId, setActiveDropdownId])
+    // Don't automatically close dropdown here - let focus/blur events control it
+    // This allows autofocus to work properly: field focuses with empty value,
+    // and the onFocus handler will open the dropdown
+  }, [inputValue, options, isLoading])
 
   // Close this dropdown when clicking outside
   useEffect(() => {
@@ -295,7 +291,9 @@ export function AutocompleteField({
           }}
           onBlur={handleBlur}
           onFocus={() => {
-            if (filteredOptions.length > 0 || inputValue.length > 0) {
+            // Open dropdown on focus if we have options to show
+            // This works for both autofocus (empty value) and manual focus
+            if (options.length > 0) {
               setActiveDropdownId(dropdownId)
             }
           }}
