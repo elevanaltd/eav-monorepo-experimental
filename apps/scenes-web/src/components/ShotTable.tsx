@@ -171,13 +171,13 @@ export function ShotTable({ component }: ShotTableProps) {
               </tr>
             </thead>
             <tbody>
-              {shots.map((shot: Shot) => (
+              {shots.map((shot: Shot, index: number) => (
                 <React.Fragment key={shot.id}>
                   <tr>
                     {/* Shot Number (read-only) */}
                     <td className="col-number">{shot.shot_number}</td>
 
-                    {/* movement_type - Fixed list autocomplete (no "Other") - NOW FIRST */}
+                    {/* movement_type - Fixed list autocomplete (no "Other") - Auto-focus first */}
                     <td className="col-movement">
                       <AutocompleteField
                         value={shot.movement_type || null}
@@ -186,6 +186,7 @@ export function ShotTable({ component }: ShotTableProps) {
                         allowOther={false}
                         placeholder="Select..."
                         isLoading={dropdownsQuery.isLoading}
+                        autoFocus={index === 0}
                       />
                     </td>
 
