@@ -171,13 +171,13 @@ export function ShotTable({ component }: ShotTableProps) {
               </tr>
             </thead>
             <tbody>
-              {shots.map((shot: Shot) => (
+              {shots.map((shot: Shot, index: number) => (
                 <React.Fragment key={shot.id}>
                   <tr>
                     {/* Shot Number (read-only) */}
                     <td className="col-number">{shot.shot_number}</td>
 
-                    {/* movement_type - Fixed list autocomplete (no "Other") - NOW FIRST */}
+                    {/* movement_type - Fixed list autocomplete (no "Other") - Auto-focus first */}
                     <td className="col-movement">
                       <AutocompleteField
                         value={shot.movement_type || null}
@@ -186,6 +186,7 @@ export function ShotTable({ component }: ShotTableProps) {
                         allowOther={false}
                         placeholder="Select..."
                         isLoading={dropdownsQuery.isLoading}
+                        autoFocus={index === 0}
                       />
                     </td>
 
@@ -204,19 +205,18 @@ export function ShotTable({ component }: ShotTableProps) {
                       />
                     </td>
 
-                    {/* shot_type - Fixed list autocomplete (no "Other") - CONDITIONAL: Hide for Tracking/Establishing */}
-                    {(!shot.movement_type || !['Tracking', 'Establishing'].includes(shot.movement_type)) && (
-                      <td className="col-shot-type">
-                        <AutocompleteField
-                          value={shot.shot_type || null}
-                          onChange={(value) => handleAutocompleteChange(shot.id, 'shot_type', value)}
-                          options={dropdownMap['shot_type'] || []}
-                          allowOther={false}
-                          placeholder="Select..."
-                          isLoading={dropdownsQuery.isLoading}
-                        />
-                      </td>
-                    )}
+                    {/* shot_type - Fixed list autocomplete (no "Other") - DISABLED for Tracking/Establishing */}
+                    <td className="col-shot-type">
+                      <AutocompleteField
+                        value={shot.shot_type || null}
+                        onChange={(value) => handleAutocompleteChange(shot.id, 'shot_type', value)}
+                        options={dropdownMap['shot_type'] || []}
+                        allowOther={false}
+                        placeholder="Select..."
+                        isLoading={dropdownsQuery.isLoading}
+                        disabled={!!shot.movement_type && ['Tracking', 'Establishing'].includes(shot.movement_type)}
+                      />
+                    </td>
 
                     {/* subject - Flexible list with "Other" */}
                     <td className="col-subject">
@@ -233,18 +233,17 @@ export function ShotTable({ component }: ShotTableProps) {
                       />
                     </td>
 
-                    {/* action - Free text with debounced save - CONDITIONAL: Hide for Photos */}
-                    {(!shot.movement_type || shot.movement_type !== 'Photos') && (
-                      <td className="col-action">
-                        <input
-                          type="text"
-                          value={pendingMutations[`${shot.id}-action`] ?? shot.action ?? ''}
-                          onChange={(e) => handleTextFieldChange(shot.id, 'action', e.target.value)}
-                          placeholder="e.g., demo, movement"
-                          className="form-control form-control-text"
-                        />
-                      </td>
-                    )}
+                    {/* action - Free text with debounced save - DISABLED for Photos */}
+                    <td className="col-action">
+                      <input
+                        type="text"
+                        value={pendingMutations[`${shot.id}-action`] ?? shot.action ?? ''}
+                        onChange={(e) => handleTextFieldChange(shot.id, 'action', e.target.value)}
+                        placeholder="e.g., demo, movement"
+                        className="form-control form-control-text"
+                        disabled={shot.movement_type === 'Photos'}
+                      />
+                    </td>
 
                     {/* variant - Free text with debounced save */}
                     <td className="col-variant">

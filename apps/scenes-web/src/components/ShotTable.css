@@ -122,12 +122,12 @@
   width: 130px;
 }
 
-.col-tracking {
-  width: 130px;
+.col-movement {
+  width: 65px;  /* Reduced from 130px (50% reduction) */
 }
 
 .col-subject {
-  width: 120px;
+  width: 152px;  /* Increased from 120px (+32px) */
 }
 
 .col-variant {
@@ -135,7 +135,7 @@
 }
 
 .col-action {
-  width: 120px;
+  width: 153px;  /* Increased from 120px (+33px) */
 }
 
 .col-actions {

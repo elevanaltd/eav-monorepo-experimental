@@ -11,39 +11,39 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./client": {
+      "types": "./dist/lib/client/index.d.ts",
       "import": "./dist/lib/client/index.js",
-      "require": "./dist/lib/client/index.cjs",
-      "types": "./dist/lib/client/index.d.ts"
+      "require": "./dist/lib/client/index.cjs"
     },
     "./types": {
+      "types": "./dist/lib/types/index.d.ts",
       "import": "./dist/lib/types/index.js",
-      "require": "./dist/lib/types/index.cjs",
-      "types": "./dist/lib/types/index.d.ts"
+      "require": "./dist/lib/types/index.cjs"
     },
     "./auth": {
+      "types": "./dist/lib/auth/index.d.ts",
       "import": "./dist/lib/auth/index.js",
-      "require": "./dist/lib/auth/index.cjs",
-      "types": "./dist/lib/auth/index.d.ts"
+      "require": "./dist/lib/auth/index.cjs"
     },
     "./rls": {
+      "types": "./dist/lib/rls/index.d.ts",
       "import": "./dist/lib/rls/index.js",
-      "require": "./dist/lib/rls/index.cjs",
-      "types": "./dist/lib/rls/index.d.ts"
+      "require": "./dist/lib/rls/index.cjs"
     },
     "./navigation": {
+      "types": "./dist/lib/navigation/index.d.ts",
       "import": "./dist/lib/navigation/index.js",
-      "require": "./dist/lib/navigation/index.cjs",
-      "types": "./dist/lib/navigation/index.d.ts"
+      "require": "./dist/lib/navigation/index.cjs"
     },
     "./components": {
+      "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js",
-      "require": "./dist/components/index.cjs",
-      "types": "./dist/components/index.d.ts"
+      "require": "./dist/components/index.cjs"
     },
     "./dist/index.css": "./dist/index.css"
   },
